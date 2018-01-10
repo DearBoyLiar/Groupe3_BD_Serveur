@@ -8,6 +8,7 @@ FROM article a, word w,lemma l, position_word pw
 WHERE w.id_lemma = l.id_lemma
 AND w.id_word = pw.id_word
 AND pw.id_article = a.id_article
+AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY w.word 
 ORDER BY 2 DESC LIMIT 5;
 
@@ -22,7 +23,8 @@ BEGIN
 	FROM article a, belong b, classification c 
 	WHERE c.class = 'vTheme' 
 	AND b.id_class = c.id_class 
-	AND b.id_article = a.id_article; 
+	AND b.id_article = a.id_article
+	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE; 
 END;
 
 --query 3 : Top 10 sources with the most articles per week 
@@ -31,6 +33,7 @@ END;
 SELECT n.name_newspaper, count(a.id_article)
 FROM article a , newspaper n
 WHERE n.id_newspaper = a.id_newspaper
+AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY n.name_newspaper
 ORDER BY 2 DESC LIMIT 10;
 
@@ -49,6 +52,7 @@ AND w.id_word = pw.id_word
 AND pw.id_article = a.id_article
 AND a.id_article = b.id_article
 AND c.id_class = b.id_class
+AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY c.class, w.word 
 ORDER BY 3 DESC LIMIT 5;
 
@@ -62,7 +66,8 @@ BEGIN
 	AND pw.id_article = a.id_article
 	AND b.id_article = a.id_article
 	AND c.id_class = b.id_class
-	AND w.word = vWord;
+	AND w.word = vWord
+	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE;
 END;
 
 		
@@ -81,7 +86,7 @@ BEGIN
 END;
 
 
---query 9 : Liste de words associés au wordclé (nombre à définir)
+--query 9 : List of words associated with the keyword
 CREATE PROCEDURE list_Key_Word (INOUT vWord varchar(50), OUT vSynonym varchar(50)) 
 BEGIN
 	SELECT s.synonym INTO vSynonym
@@ -93,7 +98,7 @@ BEGIN
 END;
 
 
---query 10 : Fréquence d'apparition du wordpar thème
+--query 10 : Frequency of appearance of the word by theme
 CREATE PROCEDURE frequency_Word_Theme (INOUT vWord varchar(50), OUT vfrequency FLOAT, OUT vclassification varchar(25))
 BEGIN
 	SELECT c.class, w.word, (count(w.word)/(SELECT count(w.word) FROM word)) INTO vclassification, vWord, vfrequency
@@ -107,12 +112,12 @@ BEGIN
 	GROUP BY c.class, w.word;
 END;
 
---query 11 : compter le nombre de journaux
+--query 11 : count the number of newspapers
 
 SELECT count(n.id_newspaper)
 FROM newspaper n;
 
---query 12 : ressortir tous les noms de journaux
+--query 12 : bring out all the newspaper names
 
 SELECT DISTINCT n.name_newspaper
 FROM newspaper n;
