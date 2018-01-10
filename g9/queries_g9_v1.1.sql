@@ -8,7 +8,6 @@ FROM article a, word w,lemma l, position_word pw
 WHERE w.id_lemma = l.id_lemma
 AND w.id_word = pw.id_word
 AND pw.id_article = a.id_article
-AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY w.word 
 ORDER BY 2 DESC LIMIT 5;
 
@@ -23,8 +22,7 @@ BEGIN
 	FROM article a, belong b, classification c 
 	WHERE c.class = 'vTheme' 
 	AND b.id_class = c.id_class 
-	AND b.id_article = a.id_article
-	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE; 
+	AND b.id_article = a.id_article; 
 END;
 
 --query 3 : Top 10 sources with the most articles per week 
@@ -33,7 +31,6 @@ END;
 SELECT n.name_newspaper, count(a.id_article)
 FROM article a , newspaper n
 WHERE n.id_newspaper = a.id_newspaper
-AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY n.name_newspaper
 ORDER BY 2 DESC LIMIT 10;
 
@@ -52,7 +49,6 @@ AND w.id_word = pw.id_word
 AND pw.id_article = a.id_article
 AND a.id_article = b.id_article
 AND c.id_class = b.id_class
-AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
 GROUP BY c.class, w.word 
 ORDER BY 3 DESC LIMIT 5;
 
@@ -66,8 +62,7 @@ BEGIN
 	AND pw.id_article = a.id_article
 	AND b.id_article = a.id_article
 	AND c.id_class = b.id_class
-	AND w.word = vWord
-	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE;
+	AND w.word = vWord;
 END;
 
 		
@@ -86,7 +81,7 @@ BEGIN
 END;
 
 
---query 9 : List of words associated with the keyword
+--query 9 : List of words associated with the keyword (number to be defined)
 CREATE PROCEDURE list_Key_Word (INOUT vWord varchar(50), OUT vSynonym varchar(50)) 
 BEGIN
 	SELECT s.synonym INTO vSynonym
