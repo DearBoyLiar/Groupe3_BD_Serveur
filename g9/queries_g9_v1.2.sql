@@ -38,13 +38,13 @@ ORDER BY 2 DESC LIMIT 10;
 
 --query 4 : For each source, retrieve the link + the link of the image
 
-SELECT DISTINCTn.name_newspaper, n.link_newspaper, n.link_logo
+SELECT DISTINCT n.name_newspaper, n.link_newspaper, n.link_logo
 FROM newspaper n;
 
 --query 5 : Most answered words / week for the selected theme
 			
 SELECT c.class, w.word, count(w.word)
-FROM article a, classification c, word w, lemma l, position_word pw
+FROM article a, classification c, word w, lemma l, position_word pw,
 belong b 
 WHERE w.id_lemma = l.id_lemma
 AND w.id_word = pw.id_word
