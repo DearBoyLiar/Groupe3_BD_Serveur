@@ -17,11 +17,11 @@ ORDER BY 2 DESC LIMIT 5;
 
 CREATE PROCEDURE percent_Theme (INOUT vTheme varchar(25), OUT vPercent FLOAT) 
 BEGIN 
-	SELECT c.class, ((count(a.id_article)/(SELECT count(id_article) FROM article))*100) 
+	SELECT la.label, ((count(a.id_article)/(SELECT count(id_article) FROM article))*100) 
 	INTO vTheme, vPercent
-	FROM article a, belong b, classification c 
-	WHERE c.class = 'vTheme' 
-	AND b.id_class = c.id_class 
+	FROM article a, belong b, label la 
+	WHERE la.label = 'vTheme' 
+	AND b.id_label = la.id_label 
 	AND b.id_article = a.id_article
 	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE; 
 END;
@@ -43,28 +43,28 @@ FROM newspaper n;
 
 --query 5 : Most answered words / week for the selected theme
 			
-SELECT c.class, w.word, count(w.word)
-FROM article a, classification c, word w, lemma l, position_word pw,
+SELECT la.label, w.word, count(w.word)
+FROM article a, label la, word w, lemma l, position_word pw,
 belong b 
 WHERE w.id_lemma = l.id_lemma
 AND w.id_word = pw.id_word
 AND pw.id_article = a.id_article
 AND a.id_article = b.id_article
-AND c.id_class = b.id_class
+AND la.id_label = b.id_label
 AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
-GROUP BY c.class, w.word 
+GROUP BY la.label, w.word 
 ORDER BY 3 DESC LIMIT 5;
 
 --query 7 : Frequency of appearance of the word per week 
 CREATE PROCEDURE frequency_Word (INOUT vWord varchar(50), OUT vfrequency FLOAT) 
 BEGIN
 	SELECT DISTINCT w.word, ((count(w.word)/(SELECT count(word) FROM word))*100) INTO vWord, vfrequency
-	FROM article a, belong b, classification c, word w, lemma l, position_word pw 
+	FROM article a, belong b, label la, word w, lemma l, position_word pw 
 	WHERE w.id_lemma = l.id_lemma
 	AND w.id_word = pw.id_word
 	AND pw.id_article = a.id_article
 	AND b.id_article = a.id_article
-	AND c.id_class = b.id_class
+	AND la.id_label = b.id_label
 	AND w.word = vWord
 	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE;
 END;
@@ -100,15 +100,15 @@ END;
 --query 10 : Frequency of appearance of the word by theme
 CREATE PROCEDURE frequency_Word_Theme (INOUT vWord varchar(50), OUT vfrequency FLOAT, OUT vclassification varchar(25))
 BEGIN
-	SELECT c.class, w.word, (count(w.word)/(SELECT count(w.word) FROM word)) INTO vclassification, vWord, vfrequency
-	FROM article a, belong b, classification c, word w, lemma l, position_word pw   
+	SELECT la.label, w.word, (count(w.word)/(SELECT count(w.word) FROM word)) INTO vclassification, vWord, vfrequency
+	FROM article a, belong b, label la, word w, lemma l, position_word pw   
 	WHERE w.id_lemma = l.id_lemma
 	AND w.id_word = pw.id_word
 	AND pw.id_article = a.id_article
-	AND c.id_class = b.id_class
+	AND la.id_label = b.id_label
 	AND b.id_article = a.id_article
 	AND w.word = vWord
-	GROUP BY c.class, w.word;
+	GROUP BY la.label, w.word;
 END;
 
 --query 11 : count the number of newspapers
