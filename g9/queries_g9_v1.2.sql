@@ -42,23 +42,25 @@ SELECT DISTINCT n.name_newspaper, n.link_newspaper, n.link_logo
 FROM newspaper n;
 
 --query 5 : Most answered words / week for the selected theme
-			
-SELECT la.label, w.word, count(w.word)
-FROM article a, label la, word w, lemma l, position_word pw,
-belong b 
-WHERE w.id_lemma = l.id_lemma
-AND w.id_word = pw.id_word
-AND pw.id_article = a.id_article
-AND a.id_article = b.id_article
-AND la.id_label = b.id_label
-AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
-GROUP BY la.label, w.word 
-ORDER BY 3 DESC LIMIT 5;
+CREATE PROCEDURE frequency_Theme (INOUT vTheme VARCHAR(50)) 
+BEGIN
+	SELECT la.label, w.word, count(w.word)
+	FROM article a, label la, word w, lemma l, position_word pw,
+	belong b 
+	WHERE w.id_lemma = l.id_lemma
+	AND w.id_word = pw.id_word
+	AND pw.id_article = a.id_article
+	AND a.id_article = b.id_article
+	AND la.id_label = b.id_label
+	AND la.label = vTheme
+	AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
+	ORDER BY 3 DESC LIMIT 5;
+END;
 
 --query 7 : Frequency of appearance of the word per week 
 CREATE PROCEDURE frequency_Word (INOUT vWord varchar(50), OUT vfrequency FLOAT) 
 BEGIN
-	SELECT DISTINCT w.word, ((count(w.word)/(SELECT count(word) FROM word))*100) INTO vWord, vfrequency
+	SELECT DISTINCT w.word, count(pw.id_word) INTO vWord, vfrequency
 	FROM article a, belong b, label la, word w, lemma l, position_word pw 
 	WHERE w.id_lemma = l.id_lemma
 	AND w.id_word = pw.id_word
@@ -75,7 +77,7 @@ END;
 CREATE PROCEDURE word_percent  (INOUT vSource varchar(50),
 OUT vPercent FLOAT, OUT vWord varchar(50))
 BEGIN
-   SELECT w.word, (count(w.word)/(SELECT count(word) FROM word)) INTO vWord, vPercent
+   SELECT w.word, count(pw.id_word) INTO vWord, vPercent
    FROM word w, lemma l, position_word pw, article a, newspaper n
    WHERE w.id_lemma = l.id_lemma
    AND w.id_word = pw.id_word
@@ -100,7 +102,7 @@ END;
 --query 10 : Frequency of appearance of the word by theme
 CREATE PROCEDURE frequency_Word_Theme (INOUT vWord varchar(50), OUT vfrequency FLOAT, OUT vclassification varchar(25))
 BEGIN
-	SELECT la.label, w.word, (count(w.word)/(SELECT count(w.word) FROM word)) INTO vclassification, vWord, vfrequency
+	SELECT la.label, w.word, count(pw.id_word) INTO vclassification, vWord, vfrequency
 	FROM article a, belong b, label la, word w, lemma l, position_word pw   
 	WHERE w.id_lemma = l.id_lemma
 	AND w.id_word = pw.id_word
