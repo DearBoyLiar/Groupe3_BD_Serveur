@@ -122,3 +122,12 @@ FROM newspaper n;
 
 SELECT DISTINCT n.name_newspaper
 FROM newspaper n;
+
+
+--query 13 : number of items 
+SELECT number_article 
+FROM mv_number_article_week ;
+
+--query 14 : number of items/labels
+SELECT id_label,number_article
+FROM mv_number_article_week_label ;
