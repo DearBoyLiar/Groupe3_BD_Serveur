@@ -42,7 +42,7 @@ SELECT DISTINCT n.name_newspaper, n.link_newspaper, n.link_logo
 FROM newspaper n;
 
 --query 5 : Most answered words / week for the selected theme
-CREATE PROCEDURE frequency_Theme (INOUT vTheme VARCHAR(50)) 
+CREATE PROCEDURE count_word_Theme (INOUT vTheme VARCHAR(50)) 
 BEGIN
 	SELECT la.label, w.word, count(w.word)
 	FROM article a, label la, word w, lemma l, position_word pw,
@@ -58,7 +58,7 @@ BEGIN
 END;
 
 --query 7 : Frequency of appearance of the word per week 
-CREATE PROCEDURE frequency_Word (INOUT vWord varchar(50), OUT vfrequency FLOAT) 
+CREATE PROCEDURE frequency_per_Word (INOUT vWord varchar(50), OUT vfrequency FLOAT) 
 BEGIN
 	SELECT DISTINCT w.word, count(pw.id_word) INTO vWord, vfrequency
 	FROM article a, belong b, label la, word w, lemma l, position_word pw 
@@ -74,7 +74,7 @@ END;
 		
 --query 8 : Frequency of the word by source
 
-CREATE PROCEDURE word_percent  (INOUT vSource varchar(50),
+CREATE PROCEDURE frequency_word_per_source  (INOUT vSource varchar(50),
 OUT vPercent FLOAT, OUT vWord varchar(50))
 BEGIN
    SELECT w.word, count(pw.id_word) INTO vWord, vPercent
@@ -91,18 +91,17 @@ END;
 CREATE PROCEDURE list_Key_Word (INOUT vWord varchar(50), OUT vSynonym varchar(50)) 
 BEGIN
 	SELECT s.synonym INTO vSynonym
-	FROM   word w, lemma l, position_word pw, synonym s
+	FROM   word w, lemma l, synonym s
 	WHERE w.id_lemma = l.id_lemma
-	AND w.id_word = pw.id_word
-	AND pw.id_synonyme = s.id_synonyme
+	AND w.id_synonyme = s.id_synonyme
 	AND w.word = vWord;
 END;
 
 
 --query 10 : Frequency of appearance of the word by theme
-CREATE PROCEDURE frequency_Word_Theme (INOUT vWord varchar(50), OUT vfrequency FLOAT, OUT vclassification varchar(25))
+CREATE PROCEDURE frequency_Word_Theme (INOUT vWord varchar(50), OUT vfrequency FLOAT, OUT vlabel varchar(25))
 BEGIN
-	SELECT la.label, w.word, count(pw.id_word) INTO vclassification, vWord, vfrequency
+	SELECT la.label, w.word, count(pw.id_word) INTO vlabel, vWord, vfrequency
 	FROM article a, belong b, label la, word w, lemma l, position_word pw   
 	WHERE w.id_lemma = l.id_lemma
 	AND w.id_word = pw.id_word
