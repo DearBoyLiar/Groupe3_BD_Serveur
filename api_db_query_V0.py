@@ -155,8 +155,8 @@ def api_frequency_word_week():
 		
 ##query 2 Web :Show theme + percentage of number of articles 
 ##of this theme for the week
-@app.route("/percent_Theme/<varchar:vTheme><float:vPercent>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
-def api_percent_Theme(vTheme, vPercent):
+@app.route("/percent_Theme/<String:vTheme>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+def api_percent_Theme(vTheme):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
 		print("connexion reussie iw")
@@ -213,7 +213,7 @@ def api_link_by_source():
 		return "insert ok"
 		
 ##query 5 Web : Most answered words / week for the selected theme
-@app.route("/frequency_Theme/<varchar:vTheme>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+@app.route("/frequency_Theme/<String:vTheme>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
 def api_frequency_Theme(vTheme):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
@@ -241,7 +241,7 @@ def api_frequency_Theme(vTheme):
 		
 		
 ##query 7 Web : Frequency of appearance of the word per week
-@app.route("/count_word_Theme/<varchar:vTheme>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+@app.route("/count_word_Theme/<String:vTheme>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
 def api_count_word_Theme(vTheme):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
@@ -268,7 +268,7 @@ def api_count_word_Theme(vTheme):
 		return "insert ok"
 		
 ##query 8 Web : Frequency of the word by source
-@app.route("/frequency_per_Word/<varchar:vSource>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+@app.route("/frequency_per_Word/<String:vSource>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
 def api_frequency_per_Word(vSource):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
@@ -293,7 +293,7 @@ def api_frequency_per_Word(vSource):
 		
 
 ##query 9 Web : List of words associated with the keyword
-@app.route("/list_Key_Word/<varchar:vWord>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+@app.route("/list_Key_Word/<String:vWord>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
 def api_list_Key_Word(vWord):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
@@ -314,7 +314,7 @@ def api_list_Key_Word(vWord):
 		return "insert ok"
 		
 ##query 10 Web : Frequency of appearance of the word by theme		
-@app.route("/frequency_Word_Theme/<varchar:vWord>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
+@app.route("/frequency_Word_Theme/<String:vWord>", methods = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])	
 def api_frequency_Word_Theme(vWord):
 	try:
 		db = MySQLdb.connect(user = username, passwd = passwordDB, host = servername, db = databasename)
