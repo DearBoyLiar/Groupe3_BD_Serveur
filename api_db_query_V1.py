@@ -385,7 +385,7 @@ def api_word():
 
 ##query 4
 @app.route("/frequency_word_label_Periode/<String:vWord><Date:vDateDebut><Date:vDateFin><String:vLabel>", strict_slashes = False, methods = ['GET', 'POST'])	
-def api_frequency_word_label_Periode():
+def api_frequency_word_label_Periode(vWord, vDateDebut, vDateFin, vLabel):
 		"""
 		input :
 		output :
@@ -415,7 +415,7 @@ def api_frequency_word_label_Periode():
 		
 ##query 5
 @app.route("/frequency_word_newspaper_Periode/<String:vWord><Date:vDateDebut><Date:vDateFin><String:vName_newspaper>", strict_slashes = False, methods = ['GET', 'POST'])	
-def api_frequency_word_newspaper_Periode():
+def api_frequency_word_newspaper_Periode(vWord, vDateDebut, vDateFin,vName_newspaper):
 		"""
 		input :
 		output :
