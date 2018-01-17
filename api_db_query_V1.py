@@ -481,7 +481,7 @@ def api_theme_per_crescent_article():
 					ORDER BY nombre ASC;
 				"""
 		result = execute_query(query)
-		keys = ['name_newspaper']
+		keys = ['Label','number']
 		json_return = to_json(keys, result)
 		json_return.status_code = 200
 		json_return.headers.add('Access-Control-Allow-Origin','*')
@@ -494,7 +494,7 @@ def api_theme_per_crescent_article():
 def api_polarity_items():
 		"""
 		input :
-		output :
+		output : json_file
 		
 		felt the polarity of all items 7-day slippery
 		"""
@@ -504,7 +504,7 @@ def api_polarity_items():
 					WHERE a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE;
 				"""
 		result = execute_query(query)
-		keys = ['name_newspaper']
+		keys = ['id_article','positivité']
 		json_return = to_json(keys, result)
 		json_return.status_code = 200
 		json_return.headers.add('Access-Control-Allow-Origin','*')
@@ -521,13 +521,16 @@ def api_rate():
 		felt the rate of all items 7-day slippery
 		"""
 		query = """
-					SELECT a.id_article, a.rate_joy, a.rate_fear, a.rate_sadness, a.rate_angry, a.rate_surprise, a.rate_disgust, a.subjectivity
+					SELECT a.id_article, sum(a.rate_joy)/count(a.id_article), sum(a.rate_fear)/count(a.id_article), 
+					sum(a.rate_sadness)/count(a.id_article), sum(a.rate_angry)/count(a.id_article), 
+					sum(a.rate_surprise)/count(a.id_article), sum(a.rate_disgust)/count(a.id_article), sum(a.subjectivity)/count(a.id_article)
 					FROM article a  
 					WHERE a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE;
 				"""
-		cursor = db.cursor()
-		cursor.execute(query)
-		db.commit()
-		cursor.close()
-		db.close()
-		return "insert ok"
+		result = execute_query(query)
+		keys = ['id_article','joie','peur','tristesse',]
+		json_return = to_json(keys, result)
+		json_return.status_code = 200
+		json_return.headers.add('Access-Control-Allow-Origin','*')
+		json_return.headers.add('allow_redirects',True)
+		return json_return
