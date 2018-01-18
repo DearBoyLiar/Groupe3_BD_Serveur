@@ -6,7 +6,8 @@ import MySQLdb
 ##### GROUP 3 - Version 1.1 - MC/CR : modification des requetes #####
 ##### GROUP 3 - Version 1.2 - MC/CR : Ajout des commentaires #####
 ##### GROUP 3 - Version 1.3 - MC/CR/EM : Ajout de requetes #####
-##### GROUP 4 - Version 1.4 - MC : Norme de codage pep8 #####
+##### GROUP 3 - Version 1.4 - MC : Norme de codage pep8 #####
+##### GROUP 3 - Version 1.5 - EM/CR : Création et modifications des requetes ##
 """
 """
 from flask import Flask, request, jsonify
@@ -66,8 +67,7 @@ def execute_query(query):
 # Accueil
 # query 1
 # query 2
-@app.route("""/best_label_week/""", strict_slashes=False,
-           methods=['GET', 'POST'])
+@app.route("/best_label_week/", strict_slashes=False, methods=['GET', 'POST'])
 def api_best_label_week():
     """
     input :
@@ -84,6 +84,9 @@ def api_best_label_week():
         AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
         ORDER BY 2 DESC LIMIT 1;"""
     result = execute_query(query)
+    floatify = [(row[0], float(row[1])) for row in result]
+    result = tuple(floatify)
+    print(result)
     keys = ['label', 'ratio_article']
     json_return = to_json(keys, result)
     json_return.status_code = 200
@@ -93,7 +96,7 @@ def api_best_label_week():
 
 
 # query 3
-@app.route("/Top_3_rate_feeling/", strict_slashes=False,
+@app.route("/top_3_rate_feeling/", strict_slashes=False,
            methods=['GET', 'POST'])
 def api_Top_3_rate_feeling():
     """
@@ -103,7 +106,7 @@ def api_Top_3_rate_feeling():
     Top 3 most represented feelings: percentage + feelings
     """
     query = """
-        SELECT *
+        SELECT feeling, rate
         FROM (
             SELECT 'joy' AS feeling,AVG(rate_joy) AS rate
             FROM article
@@ -132,8 +135,8 @@ def api_Top_3_rate_feeling():
             SELECT 'subjectivity' AS feeling,AVG(rate_subjectivity) AS rate
             FROM article
             WHERE date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
-            ) AS table
-        ORDER BY rate DESC LIMIT 3;"""
+            ) as feels
+        ORDER BY 2 DESC LIMIT 3;"""
     result = execute_query(query)
     keys = ['feeling', 'rate']
     json_return = to_json(keys, result)
@@ -145,7 +148,7 @@ def api_Top_3_rate_feeling():
 
 
 # query 4
-@app.route("""/newspaper_by_article/""", strict_slashes=False,
+@app.route("/newspaper_by_article/", strict_slashes=False,
            methods=['GET', 'POST'])
 def api_newspaper_by_article():
     """
@@ -171,7 +174,7 @@ def api_newspaper_by_article():
 
 # Theme
 # query 1
-@app.route("""/newspaper_by_label/""", strict_slashes=False,
+@app.route("/newspaper_by_label/", strict_slashes=False,
            methods=['GET', 'POST'])
 def api_newspaper_by_label():
     """
@@ -184,7 +187,7 @@ def api_newspaper_by_label():
         SELECT l.label, count(a.id_article)
         FROM article a, label l, belong b
         WHERE a.id_article = b.id_article
-        AND b.id_labl = l.id_label
+        AND b.id_label = l.id_label
         AND b.strongest_label = 1
         AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
         ORDER BY 2 ASC;"""
@@ -199,9 +202,9 @@ def api_newspaper_by_label():
 
 # Recherche
 # query 1
-@app.route("""/article_per_day/<string:vWord>/<string:vDateDebut>/
-           <string:vDateFin>/""",
-           strict_slashes=False, methods=['GET', 'POST'])
+@app.route(
+    "/article_per_day/<string:vWord>/<string:vDateDebut>/<string:vDateFin>/",
+    strict_slashes=False, methods=['GET', 'POST'])
 def api_article_per_day(vWord, vDateDebut, vDateFin):
     """
     input :
@@ -227,8 +230,8 @@ def api_article_per_day(vWord, vDateDebut, vDateFin):
 
 
 # query 2
-@app.route("""/article_per_day_source/<string:vWord>/
-           <string:vDateDebut>/<string:vDateFin>/""",
+@app.route("/article_per_day_source/<string:vWord>/<string:vDateDebut>/"
+           + "<string:vDateFin>/",
            strict_slashes=False, methods=['GET', 'POST'])
 def api_article_per_day_source(vWord, vDateDebut, vDateFin):
     """
@@ -256,8 +259,8 @@ def api_article_per_day_source(vWord, vDateDebut, vDateFin):
 
 
 # query 3
-@app.route("""/article_per_source/<string:vWord>/<string:vDateDebut>/
-           <string:vDateFin>/""",
+@app.route("/article_per_source/<string:vWord>/<string:vDateDebut>/"
+           + "<string:vDateFin>/",
            strict_slashes=False, methods=['GET', 'POST'])
 def api_article_per_source(vWord, vDateDebut, vDateFin):
     """
@@ -285,8 +288,8 @@ def api_article_per_source(vWord, vDateDebut, vDateFin):
 
 
 # query 4
-@app.route("""/article_per_day_label/<string:vWord>/<string:vDateDebut>/
-           <string:vDateFin>/""",
+@app.route("/article_per_day_label/<string:vWord>/<string:vDateDebut>/"
+           + "<string:vDateFin>/",
            strict_slashes=False, methods=['GET', 'POST'])
 def api_article_per_day_label(vWord, vDateDebut, vDateFin):
     """
@@ -314,9 +317,9 @@ def api_article_per_day_label(vWord, vDateDebut, vDateFin):
     return json_return
 
 
-# query 5
-@app.route("""/article_per_label/<string:vWord>/<string:vDateDebut>/
-           <string:vDateFin>/""",
+# query 5  #  /2014-01-01/2019-01-01
+@app.route("/article_per_label/<string:vWord>/<string:vDateDebut>/"
+           + "<string:vDateFin>/",
            strict_slashes=False, methods=['GET', 'POST'])
 def api_article_per_label(vWord, vDateDebut, vDateFin):
     """
@@ -354,40 +357,47 @@ def api_found_word(vWord):
 
     Return a wiki link if the word is an entity, otherwise return a synonym
     """
+    json_return = {}
     query_word = """
         SELECT w.id_word
         FROM position_word pw, word w
         WHERE w.id_word = pw.id_word
-        AND w.word = '"""+str(vWord)+"""';
-        """
+        AND w.word = '"""+str(vWord)+"""';"""
     vId_word = execute_query(query_word)
+
+    if vId_word == ():
+        json_return = {}
+        json_return = jsonify(json_return)
+        json_return.status_code = 200
+        json_return.headers.add('Access-Control-Allow-Origin', '*')
+        json_return.headers.add('allow_redirects', True)
+        return json_return
 
     query_entity = """
         SELECT id_entity
         FROM position_word
-        WHERE id_word = '"""+str(vId_word[0][0])+"""';
+        WHERE id_word = """+str(vId_word[0][0])+""";
         """
 
     query_wiki_link = """
         SELECT file_wiki
         FROM wiki wk, position_word pw, word w
-        WHERE pw.id_word = '"""+str(vId_word[0][0])+"""'
+        WHERE pw.id_word = """+str(vId_word[0][0])+"""
         AND pw.id_wiki = wk.id_wiki;
       """
 
-#    query_synonym = """
-#        SELECT s.synonym
-#        FROM synonym s, common c, position_word pw
-#        WHERE pw.id_word = '"""+str(vId_word[0][0])+"""'
-#        AND c.position = pw.position
-#        AND s.id_synonym = c.id_synonym;
-#      """
+    # query_synonym = """
+    # SELECT s.synonym
+    # FROM synonym s, common c, position_word pw
+    # WHERE pw.id_word = '"""+str(vId_word[0][0])+"""'
+    # AND c.position = pw.position
+    # AND s.id_synonym = c.id_synonym;
+    # """
 
     vId_entity = execute_query(query_entity)
 
-    json_return = {}
     if vId_entity[0][0] is not None:
-        json_return['wiki'] = execute_query(query_wiki_link) # TODO [0][0]
+        json_return['wiki'] = execute_query(query_wiki_link)  # TODO [0][0]
     else:
         json_return['wiki'] = None
     json_return.status_code = 200
