@@ -98,7 +98,7 @@ def api_best_label_week():
 # query 3
 @app.route("/top_3_rate_feeling/", strict_slashes=False,
            methods=['GET', 'POST'])
-def api_Top_3_rate_feeling():
+def api_top_3_rate_feeling():
     """
     input :
     output : return a json file
@@ -158,11 +158,12 @@ def api_newspaper_by_article():
     All newspapers ordered in the descending order by number of items
     """
     query = """
-        SELECT n.name_newspaper, count(a.id_article)
+        SELECT n.name_newspaper, count(a.id_article) AS number_article
         FROM article a, newspaper n
         WHERE a.id_newspaper = n.id_newspaper
         AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
-        ORDER BY 2 DESC;"""
+        GROUP BY n.name_newspaper
+        ORDER BY number_article DESC;"""
     result = execute_query(query)
     keys = ['newspaper', 'number_article']
     json_return = to_json(keys, result)
@@ -184,13 +185,13 @@ def api_newspaper_by_label():
     Numbers of items sorted by ascending order-monolabel
     """
     query = """
-        SELECT l.label, count(a.id_article)
+        SELECT l.label, count(a.id_article) as number_article
         FROM article a, label l, belong b
         WHERE a.id_article = b.id_article
         AND b.id_label = l.id_label
         AND b.strongest_label = 1
         AND a.date_publication BETWEEN CURRENT_DATE-7 AND CURRENT_DATE
-        ORDER BY 2 ASC;"""
+        ORDER BY number_article ASC;"""
     result = execute_query(query)
     keys = ['label', 'number_article']
     json_return = to_json(keys, result)
@@ -203,9 +204,9 @@ def api_newspaper_by_label():
 # Recherche
 # query 1
 @app.route(
-    "/article_per_day/<string:vWord>/<string:vDateDebut>/<string:vDateFin>/",
+    "/article_per_day/<string:vWord>/<string:vDateStart>/<string:vDateEnd>/",
     strict_slashes=False, methods=['GET', 'POST'])
-def api_article_per_day(vWord, vDateDebut, vDateFin):
+def api_article_per_day(vWord, vDateStart, vDateEnd):
     """
     input :
     output : json_file
@@ -218,8 +219,8 @@ def api_article_per_day(vWord, vDateDebut, vDateFin):
         WHERE w.id_word = pw.id_word
         AND pw.id_article = a.id_article
         AND w.word = '"""+vWord+"""'
-        AND a.date_publication BETWEEN '"""+vDateDebut+"""' AND '"""+vDateFin+"""'
-        GROUP BY 1;"""
+        AND a.date_publication BETWEEN '"""+vDateStart+"""' AND '"""+vDateEnd+"""'
+        GROUP BY a.date_publication;"""
     result = execute_query(query)
     keys = ['date', 'number_article']
     json_return = to_json(keys, result)
@@ -230,10 +231,10 @@ def api_article_per_day(vWord, vDateDebut, vDateFin):
 
 
 # query 2
-@app.route("/article_per_day_source/<string:vWord>/<string:vDateDebut>/"
-           + "<string:vDateFin>/",
+@app.route("/article_per_day_source/<string:vWord>/<string:vDateStart>/"
+           + "<string:vDateEnd>/",
            strict_slashes=False, methods=['GET', 'POST'])
-def api_article_per_day_source(vWord, vDateDebut, vDateFin):
+def api_article_per_day_source(vWord, vDateStart, vDateEnd):
     """
     input :
     output : json_file
@@ -241,14 +242,14 @@ def api_article_per_day_source(vWord, vDateDebut, vDateFin):
     Number of article by newspaper for a specified keyword
     """
     query = """
-       SELECT a.date_publication, n.name_newspaper, count(a.id_article)
+       SELECT a.date_publication, n.name_newspaper, count(DISTINCT(a.id_article))
        FROM article a, word w, position_word pw, newspaper n
        WHERE w.id_word = pw.id_word
        AND pw.id_article = a.id_article
        AND w.word = '"""+vWord+"""'
-       AND a.date_publication BETWEEN '"""+vDateDebut+"""' AND '"""+vDateFin+"""'
+       AND a.date_publication BETWEEN '"""+vDateStart+"""' AND '"""+vDateEnd+"""'
        AND a.id_newspaper = n.id_newspaper
-       GROUP BY 1, 2;"""
+       GROUP BY a.date_publication, n.name_newspaper;"""
     result = execute_query(query)
     keys = ['date', 'newspaper', 'number_article']
     json_return = to_json(keys, result)
@@ -259,10 +260,10 @@ def api_article_per_day_source(vWord, vDateDebut, vDateFin):
 
 
 # query 3
-@app.route("/article_per_source/<string:vWord>/<string:vDateDebut>/"
-           + "<string:vDateFin>/",
+@app.route("/article_per_source/<string:vWord>/<string:vDateStart>/"
+           + "<string:vDateEnd>/",
            strict_slashes=False, methods=['GET', 'POST'])
-def api_article_per_source(vWord, vDateDebut, vDateFin):
+def api_article_per_source(vWord, vDateStart, vDateEnd):
     """
     input :
     output : json_file
@@ -270,14 +271,14 @@ def api_article_per_source(vWord, vDateDebut, vDateFin):
     By newspaper, the number of article for a specified keyword
     """
     query = """
-       SELECT n.name_newspaper, count(a.id_article)
+       SELECT n.name_newspaper, count(DISTINCT (a.id_article))
        FROM article a, word w, position_word pw, newspaper n
        WHERE w.id_word = pw.id_word
        AND pw.id_article = a.id_article
-       AND w.word = '"""+vWord+"""'
-       AND a.date_publication BETWEEN '"""+vDateDebut+"""' AND '"""+vDateFin+"""'
        AND a.id_newspaper = n.id_newspaper
-       GROUP BY 1;"""
+       AND w.word = '"""+vWord+"""'
+       AND a.date_publication BETWEEN '"""+vDateStart+"""' AND '"""+vDateEnd+"""'
+       GROUP BY n.name_newspaper;"""
     result = execute_query(query)
     keys = ['newspaper', 'number_article']
     json_return = to_json(keys, result)
@@ -288,10 +289,10 @@ def api_article_per_source(vWord, vDateDebut, vDateFin):
 
 
 # query 4
-@app.route("/article_per_day_label/<string:vWord>/<string:vDateDebut>/"
-           + "<string:vDateFin>/",
+@app.route("/article_per_day_label/<string:vWord>/<string:vDateStart>/"
+           + "<string:vDateEnd>/",
            strict_slashes=False, methods=['GET', 'POST'])
-def api_article_per_day_label(vWord, vDateDebut, vDateFin):
+def api_article_per_day_label(vWord, vDateStart, vDateEnd):
     """
     input :
     output : json_file
@@ -299,12 +300,12 @@ def api_article_per_day_label(vWord, vDateDebut, vDateFin):
     Number of article by label for a specified keyword
     """
     query = """
-       SELECT a.date_publication, l.label, count(a.id_article)
+       SELECT a.date_publication, l.label, count(DISTINCT(a.id_article))
        FROM article a, word w, position_word pw, label l, belong b
        WHERE w.id_word = pw.id_word
        AND pw.id_article = a.id_article
        AND w.word = '"""+vWord+"""'
-       AND a.date_publication BETWEEN '"""+vDateDebut+"""' AND '"""+vDateFin+"""'
+       AND a.date_publication BETWEEN '"""+vDateStart+"""' AND '"""+vDateEnd+"""'
        AND a.id_article = b.id_article
        AND b.id_label = l.id_label
        GROUP BY 1, 2;"""
@@ -318,10 +319,10 @@ def api_article_per_day_label(vWord, vDateDebut, vDateFin):
 
 
 # query 5  #  /2014-01-01/2019-01-01
-@app.route("/article_per_label/<string:vWord>/<string:vDateDebut>/"
-           + "<string:vDateFin>/",
+@app.route("/article_per_label/<string:vWord>/<string:vDateStart>/"
+           + "<string:vDateEnd>/",
            strict_slashes=False, methods=['GET', 'POST'])
-def api_article_per_label(vWord, vDateDebut, vDateFin):
+def api_article_per_label(vWord, vDateStart, vDateEnd):
     """
     input :
     output : json_file
@@ -329,12 +330,12 @@ def api_article_per_label(vWord, vDateDebut, vDateFin):
     By label, the number of article for a specified keyword
     """
     query = """
-       SELECT l.label, count(a.id_article)
+       SELECT l.label, count(DISTINCT(a.id_article))
        FROM article a, word w, position_word pw, label l, belong b
        WHERE w.id_word = pw.id_word
        AND pw.id_article = a.id_article
        AND w.word = '"""+vWord+"""'
-       AND a.date_publication BETWEEN '"""+vDateDebut+"""' AND '"""+vDateFin+"""'
+       AND a.date_publication BETWEEN '"""+vDateStart+"""' AND '"""+vDateEnd+"""'
        AND a.id_article = b.id_article
        AND b.id_label = l.id_label
        GROUP BY 1;"""
@@ -397,9 +398,10 @@ def api_found_word(vWord):
     vId_entity = execute_query(query_entity)
 
     if vId_entity[0][0] is not None:
-        json_return['wiki'] = execute_query(query_wiki_link)  # TODO [0][0]
+        json_return['wiki'] = execute_query(query_wiki_link)
     else:
         json_return['wiki'] = None
+    json_return = jsonify(json_return)
     json_return.status_code = 200
     json_return.headers.add('Access-Control-Allow-Origin', '*')
     json_return.headers.add('allow_redirects', True)
