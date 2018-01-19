@@ -1,6 +1,6 @@
-"""
+﻿"""
 g3
-@Author : L.B.C.G.
+@Author : L.B.C.G.M.I
 """
 import MySQLdb
 from datetime import datetime, timedelta
