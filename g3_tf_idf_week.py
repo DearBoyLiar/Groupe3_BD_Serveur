@@ -184,7 +184,7 @@ def tf_idf_tagging_all():
         if (words is not None):
             res[words[0] + "_type"] = pos_tag
             res[words[0]] = tf_idf
-    res = {"tweeter_type": "ADJ", "tweeter": [[], [0.8], [], [], [], [], [], [], [], [], [], [], [], []], "decision_type": "VERB", "decision": [[], [], [], [], [], [], [0.55], [], [], [], [], [], [], []], "elu_type": "PROPER_NOUN", "elu": [[], [], [], [], [], [], [0.23], [], [], [], [], [], [], []]}
+    # res = {"tweeter_type": "ADJ", "tweeter": [[], [0.8], [], [], [], [], [], [], [], [], [], [], [], []], "decision_type": "VERB", "decision": [[], [], [], [], [], [], [0.55], [], [], [], [], [], [], []], "elu_type": "PROPER_NOUN", "elu": [[], [], [], [], [], [], [0.23], [], [], [], [], [], [], []]}
     # res = {"oto": "toto"}
     js = json.dumps(res)
     print(res)
